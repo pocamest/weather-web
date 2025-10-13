@@ -1,0 +1,49 @@
+[project]
+name = "weather-web"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2.7",
+]
+
+[dependency-groups]
+dev = [
+    "django-stubs>=5.2.7",
+    "mypy>=1.18.2",
+    "ruff>=0.14.0",
+]
+
+[tool.mypy]
+
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main"]
+strict = true
+# ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "manage",
+    "config.settings",
+    "config.asgi",
+    "config.wsgi",
+    "*.migrations.*"
+]
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.ruff]
+line-length = 88
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+]
+target-version = "py313" # для Python 3.13
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+[tool.ruff.format]
+quote-style = "single"
