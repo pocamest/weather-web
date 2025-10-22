@@ -8,6 +8,8 @@ from django.http import HttpRequest
 if TYPE_CHECKING:
     from .models import User
 
+UserModel = get_user_model()
+
 
 class UsernameOrEmailBackend(ModelBackend):
     def authenticate(
@@ -17,8 +19,6 @@ class UsernameOrEmailBackend(ModelBackend):
         password: str | None = None,
         **kwargs: Any,
     ) -> User | None:
-        UserModel = get_user_model()
-
         if username is None or password is None:
             return None
 
