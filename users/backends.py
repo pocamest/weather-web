@@ -8,7 +8,7 @@ from django.http import HttpRequest
 if TYPE_CHECKING:
     from .models import User
 
-UserModel = get_user_model()
+UserModel: type[User] = get_user_model()
 
 
 class UsernameOrEmailBackend(ModelBackend):
@@ -22,11 +22,17 @@ class UsernameOrEmailBackend(ModelBackend):
         if username is None or password is None:
             return None
 
+        normalized_login = username.strip().lower()
+
         try:
             user = UserModel.objects.get(
-                Q(username__iexact=username) | Q(email__iexact=username)
+                Q(username=normalized_login) | Q(email=normalized_login)
             )
         except UserModel.DoesNotExist:
             return None
 
-        return user if user.check_password(password) else None
+        return (
+            user
+            if user.check_password(password) and self.user_can_authenticate(user)
+            else None
+        )
