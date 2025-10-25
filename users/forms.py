@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Any
 from django import forms
 from django.contrib.auth import get_user_model
 
+from .validators import username_validator
+
 if TYPE_CHECKING:
     from .models import User
 
@@ -10,7 +12,9 @@ UserModel: type[User] = get_user_model()
 
 
 class RegistrationForm(forms.Form):
-    username = forms.CharField(label='Username', max_length=150)
+    username = forms.CharField(
+        label='Username', max_length=150, validators=[username_validator]
+    )
     email = forms.EmailField(label='Email')
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
@@ -45,3 +49,12 @@ class RegistrationForm(forms.Form):
         return UserModel.objects.create_user(
             username=username, email=email, password=password
         )
+
+
+class LoginForm(forms.Form):
+    login_identifier = forms.CharField(label='UserName or Email', max_length=150)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+
+    def clean_login_identifier(self) -> str:
+        login_identifier: str = self.cleaned_data['login_identifier']
+        return login_identifier.strip().lower()

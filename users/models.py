@@ -5,6 +5,8 @@ from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.db import models
 from django.db.models.functions import Lower
 
+from .validators import username_validator
+
 
 class UserManager(DjangoUserManager['User']):
     def create_user(
@@ -47,7 +49,9 @@ class UserManager(DjangoUserManager['User']):
 
 
 class User(AbstractUser):
-    username = models.CharField('username', max_length=150, unique=False)
+    username = models.CharField(
+        'username', max_length=150, unique=False, validators=[username_validator]
+    )
     email = models.EmailField('email address', unique=False)
 
     objects: ClassVar[UserManager] = UserManager()
