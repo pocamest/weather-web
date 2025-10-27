@@ -62,8 +62,14 @@ class RegistrationForm(forms.Form):
 
 
 class LoginForm(forms.Form):
-    login_identifier = forms.CharField(label='UserName or Email', max_length=150)
-    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+    login_identifier = forms.CharField(
+        label='UserName or Email',
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    password = forms.CharField(
+        label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
 
     def clean_login_identifier(self) -> str:
         login_identifier: str = self.cleaned_data['login_identifier']
