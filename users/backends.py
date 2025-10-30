@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
@@ -8,7 +8,7 @@ from django.http import HttpRequest
 if TYPE_CHECKING:
     from .models import User
 
-UserModel: type[User] = get_user_model()
+UserModel: type['User'] = get_user_model()
 
 
 class UsernameOrEmailBackend(ModelBackend):
@@ -18,7 +18,7 @@ class UsernameOrEmailBackend(ModelBackend):
         username: str | None = None,
         password: str | None = None,
         **kwargs: Any,
-    ) -> User | None:
+    ) -> Optional['User']:
         if username is None or password is None:
             return None
 

@@ -8,7 +8,7 @@ from .validators import username_validator
 if TYPE_CHECKING:
     from .models import User
 
-UserModel: type[User] = get_user_model()
+UserModel: type['User'] = get_user_model()
 
 
 class RegistrationForm(forms.Form):
@@ -52,7 +52,7 @@ class RegistrationForm(forms.Form):
                 raise forms.ValidationError("Passwords don't match")
         return cleaned_data
 
-    def save(self) -> User:
+    def save(self) -> 'User':
         username = self.cleaned_data['username']
         email = self.cleaned_data['email']
         password = self.cleaned_data['password1']
