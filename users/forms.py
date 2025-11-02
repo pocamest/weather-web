@@ -33,14 +33,18 @@ class RegistrationForm(forms.Form):
         username: str = self.cleaned_data['username']
         normalize_username = username.strip().lower()
         if UserModel.objects.filter(username=normalize_username).exists():
-            raise forms.ValidationError('A user with that username already exists')
+            raise forms.ValidationError(
+                'A user with that username already exists', code='duplicate_username'
+            )
         return normalize_username
 
     def clean_email(self) -> str:
         email: str = self.cleaned_data['email']
         normalize_email = email.strip().lower()
         if UserModel.objects.filter(email=normalize_email).exists():
-            raise forms.ValidationError('A user with that email already exists')
+            raise forms.ValidationError(
+                'A user with that email already exists', code='duplicate_email'
+            )
         return normalize_email
 
     def clean(self) -> dict[str, Any] | None:

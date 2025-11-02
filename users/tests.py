@@ -55,3 +55,49 @@ def test_registration_with_invalid_username(client: Client) -> None:
     form: RegistrationForm = response.context['form']
 
     assert form.has_error(field='username', code='invalid_username')
+
+
+@pytest.mark.django_db
+def test_registration_with_duplicate_username(client: Client) -> None:
+    UserModel.objects.create_user(
+        username='TestUser', email='testuser@example.com', password='testpassword'
+    )
+    user_data = {
+        'username': 'testuser',
+        'email': 'test@example.com',
+        'password1': 'testpassword',
+        'password2': 'testpassword',
+    }
+
+    url_registration = reverse('users:register')
+    response = client.post(path=url_registration, data=user_data)
+
+    assert UserModel.objects.count() == 1
+    assert response.status_code == 200
+
+    form: RegistrationForm = response.context['form']
+
+    assert form.has_error(field='username', code='duplicate_username')
+
+
+@pytest.mark.django_db
+def test_registration_with_duplicate_email(client: Client) -> None:
+    UserModel.objects.create_user(
+        username='testuser', email='testuser@example.com', password='testpassword'
+    )
+    user_data = {
+        'username': 'testuser1',
+        'email': 'testuser@example.com',
+        'password1': 'testpassword',
+        'password2': 'testpassword',
+    }
+
+    url_registration = reverse('users:register')
+    response = client.post(path=url_registration, data=user_data)
+
+    assert UserModel.objects.count() == 1
+    assert response.status_code == 200
+
+    form: RegistrationForm = response.context['form']
+
+    assert form.has_error(field='email', code='duplicate_email')
