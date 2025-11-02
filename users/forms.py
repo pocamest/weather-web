@@ -53,7 +53,9 @@ class RegistrationForm(forms.Form):
             password1 = cleaned_data.get('password1')
             password2 = cleaned_data.get('password2')
             if password1 and password2 and password1 != password2:
-                raise forms.ValidationError("Passwords don't match")
+                raise forms.ValidationError(
+                    "Passwords don't match", code='different_passwords'
+                )
         return cleaned_data
 
     def save(self) -> 'User':

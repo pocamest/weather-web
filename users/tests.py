@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import Client
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
@@ -101,3 +102,23 @@ def test_registration_with_duplicate_email(client: Client) -> None:
     form: RegistrationForm = response.context['form']
 
     assert form.has_error(field='email', code='duplicate_email')
+
+
+@pytest.mark.django_db
+def test_registration_with_different_passwords(client: Client) -> None:
+    user_data = {
+        'username': 'testuser',
+        'email': 'testuser@example.com',
+        'password1': 'testpassword1',
+        'password2': 'testpassword2',
+    }
+
+    url_registration = reverse('users:register')
+    response = client.post(path=url_registration, data=user_data)
+
+    assert UserModel.objects.count() == 0
+    assert response.status_code == 200
+
+    form: RegistrationForm = response.context['form']
+
+    assert form.has_error(field=NON_FIELD_ERRORS, code='different_passwords')
