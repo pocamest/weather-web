@@ -18,4 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-urlpatterns = [path('admin/', admin.site.urls), path('users/', include('users.urls'))]
+from users.views import home_placeholder_view
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('users/', include('users.urls')),
+
+    path('', home_placeholder_view, name='home'),
+]
