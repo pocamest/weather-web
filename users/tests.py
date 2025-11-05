@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import TYPE_CHECKING, NotRequired, TypedDict, Unpack
+from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, Unpack
 
 import pytest
 from django.conf import settings
@@ -130,3 +130,48 @@ def test_registration_with_different_passwords(
     form: RegistrationForm = response.context['form']
 
     assert form.has_error(field=NON_FIELD_ERRORS, code='different_passwords')
+
+
+class LoginData(TypedDict):
+    login_identifier: str
+    password: str
+
+
+class LoginParams(TypedDict):
+    login_identifier: NotRequired[str]
+    password: NotRequired[str]
+
+
+LoginUserCallable = Callable[[Unpack[LoginParams]], DjangoTestResponse]
+
+
+@pytest.fixture
+def test_user(db: Any) -> 'User':
+    return UserModel.objects.create_user(
+        username='testuser', email='testuser@example.com', password='testpassword'
+    )
+
+
+@pytest.fixture
+def login_user(client: Client, test_user: 'User') -> LoginUserCallable:
+    def _login_user(**kwargs: Unpack[LoginParams]) -> DjangoTestResponse:
+        base_data: LoginData = {
+            'login_identifier': test_user.username,
+            'password': 'testpassword',
+        }
+        base_data.update(kwargs)
+        url_login = reverse('users:login')
+        return client.post(path=url_login, data=base_data)
+
+    return _login_user
+
+
+@pytest.mark.django_db
+def test_login_successful_with_username(
+    login_user: LoginUserCallable, test_user: 'User'
+) -> None:
+    response = login_user(login_identifier=test_user.username.upper())
+
+    assertRedirects(response=response, expected_url=str(settings.LOGIN_REDIRECT_URL))
+
+    assert '_auth_user_id' in response.client.session
