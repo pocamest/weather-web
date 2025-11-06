@@ -15,6 +15,7 @@ dev = [
     "django-stubs>=5.2.7",
     "django-stubs-ext>=5.2.7",
     "mypy>=1.18.2",
+    "pytest-django>=4.11.1",
     "ruff>=0.14.0",
 ]
 
@@ -50,3 +51,17 @@ target-version = "py313" # для Python 3.13
 select = ["E", "F", "W", "I", "UP"]
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+
+pythonpath = ["."]
+
+addopts = [
+    "--verbose",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+]
+
+python_files = ["tests.py", "test_*.py", "*_test.py"]

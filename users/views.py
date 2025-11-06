@@ -59,3 +59,7 @@ class LogoutView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         logout(request)
         return redirect(settings.LOGOUT_REDIRECT_URL)
+
+
+def home_placeholder_view(request: HttpRequest) -> HttpResponse:
+    return HttpResponse('<h1>Main page</h1>')

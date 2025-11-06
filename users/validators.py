@@ -6,4 +6,5 @@ username_validator = RegexValidator(
         'Enter a valid username. This value may contain only letters, '
         'numbers, and ./+/-/_ characters.'
     ),
+    code='invalid_username'
 )

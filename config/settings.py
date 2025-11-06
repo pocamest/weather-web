@@ -133,7 +133,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 REGISTRATION_REDIRECT_URL = reverse_lazy('users:login')
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = reverse_lazy('home')
+LOGOUT_REDIRECT_URL = reverse_lazy('home')
 
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
