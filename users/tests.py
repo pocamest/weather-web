@@ -10,7 +10,7 @@ from django.test import Client
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
 
-from .forms import RegistrationForm
+from .forms import LoginForm, RegistrationForm
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse as DjangoTestResponse
@@ -175,3 +175,48 @@ def test_login_successful_with_username(
     assertRedirects(response=response, expected_url=str(settings.LOGIN_REDIRECT_URL))
 
     assert '_auth_user_id' in response.client.session
+
+
+@pytest.mark.django_db
+def test_login_successful_with_email(
+    login_user: LoginUserCallable, test_user: 'User'
+) -> None:
+    response = login_user(login_identifier=test_user.email.upper())
+
+    assertRedirects(response=response, expected_url=str(settings.LOGIN_REDIRECT_URL))
+
+    assert '_auth_user_id' in response.client.session
+
+
+@pytest.mark.django_db
+def test_login_with_incorrect_password(login_user: LoginUserCallable) -> None:
+    response = login_user(password='incorrect_password')
+
+    assert response.status_code == 200
+    form: LoginForm = response.context['form']
+    assert 'Invalid username/email or password.' in form.non_field_errors()
+
+
+@pytest.mark.django_db
+def test_login_with_nonexistent_user(client: Client) -> None:
+    url_login = reverse('users:login')
+    login_data = {
+        'login_identifier': 'nonexistent_identifier',
+        'password': 'testpassword',
+    }
+
+    response = client.post(path=url_login, data=login_data)
+
+    assert response.status_code == 200
+    form: LoginForm = response.context['form']
+    assert 'Invalid username/email or password.' in form.non_field_errors()
+
+
+@pytest.mark.django_db
+def test_logout_successful(client: Client, login_user: LoginUserCallable) -> None:
+    login_user()
+    url_logout = reverse('users:logout')
+    response = client.post(path=url_logout)
+
+    assertRedirects(response=response, expected_url=str(settings.LOGOUT_REDIRECT_URL))
+    assert '_auth_user_id' not in response.client.session
