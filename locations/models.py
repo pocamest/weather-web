@@ -6,7 +6,7 @@ from django.db import models
 class Location(models.Model):
     name = models.CharField('name', max_length=255)
     country_code = models.CharField('country_code', max_length=2)
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='locations')
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='locations')
     latitude = models.DecimalField(
         'latitude',
         max_digits=9,
