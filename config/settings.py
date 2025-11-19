@@ -27,6 +27,9 @@ env.read_env(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
+OPEN_WEATHER_API_KEY = env('OPEN_WEATHER_API_KEY')
+OPEN_WEATHER_DEFAULT_SEARCH_LIMIT = env('OPEN_WEATHER_DEFAULT_SEARCH_LIMIT', default=5)
+OPEN_WEATHER_DEFAULT_UNITS = env('OPEN_WEATHER_DEFAULT_UNITS', default='metric')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
