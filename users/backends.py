@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 from django.contrib.auth import get_user_model
@@ -9,6 +10,8 @@ if TYPE_CHECKING:
     from .models import User
 
 UserModel: type['User'] = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 
 class UsernameOrEmailBackend(ModelBackend):
@@ -30,9 +33,15 @@ class UsernameOrEmailBackend(ModelBackend):
             )
         except UserModel.DoesNotExist:
             return None
+        except UserModel.MultipleObjectsReturned:
+            logger.critical(
+                f'Multiple users found for login identifier: {normalized_login}.'
+                'The database is in an inconsistent state.',
+                exc_info=True
+                )
+            return None
 
-        return (
-            user
-            if user.check_password(password) and self.user_can_authenticate(user)
-            else None
-        )
+        if user.check_password(password) and self.user_can_authenticate(user):
+            return user
+
+        return None
