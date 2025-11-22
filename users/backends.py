@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class UsernameOrEmailBackend(ModelBackend):
+    """
+    Authentication backend that accepts either a username or an email address.
+    Relies on the constraint that usernames must not match valid email addresses.
+    """
+
     def authenticate(
         self,
         request: HttpRequest | None,
@@ -28,6 +33,7 @@ class UsernameOrEmailBackend(ModelBackend):
         normalized_login = username.strip().lower()
 
         try:
+            # Raises MultipleObjectsReturned if a username matches an email address.
             user = UserModel.objects.get(
                 Q(username=normalized_login) | Q(email=normalized_login)
             )
@@ -35,10 +41,10 @@ class UsernameOrEmailBackend(ModelBackend):
             return None
         except UserModel.MultipleObjectsReturned:
             logger.critical(
-                f'Multiple users found for login identifier: {normalized_login}.'
+                f'Multiple users found for login identifier: "{normalized_login}". '
                 'The database is in an inconsistent state.',
-                exc_info=True
-                )
+                exc_info=True,
+            )
             return None
 
         if user.check_password(password) and self.user_can_authenticate(user):
