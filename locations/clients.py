@@ -3,8 +3,10 @@ from typing import Any
 
 import requests
 from django.conf import settings
+from pydantic import ValidationError
 
 from .exceptions import APIError
+from .schemas import LocationSearchSchema, WeatherSchema, location_search_adapter
 
 
 class OpenWeatherClient:
@@ -28,9 +30,9 @@ class OpenWeatherClient:
             raise APIError(f'API request failed: {e}') from e
         return response.json()
 
-    def find_locations_by_name(
+    def search_locations(
         self, name: str, limit: int = settings.OPEN_WEATHER_DEFAULT_SEARCH_LIMIT
-    ) -> list[dict[str, Any]]:
+    ) -> list[LocationSearchSchema]:
         params: dict[str, str | int] = {
             'q': name,
             'limit': limit,
@@ -39,14 +41,20 @@ class OpenWeatherClient:
         response: list[dict[str, Any]] = self._execute_get_request(
             url=self.GEOCODING_URL, params=params
         )
-        return response
 
-    def find_weather_by_coordinates(
+        try:
+            locations_search = location_search_adapter.validate_python(response)
+        except ValidationError as e:
+            raise APIError(f'API request failed: {e}') from e
+
+        return locations_search
+
+    def get_weather(
         self,
         lat: Decimal,
         lon: Decimal,
         units: str = settings.OPEN_WEATHER_DEFAULT_UNITS,
-    ) -> dict[str, Any]:
+    ) -> WeatherSchema:
         params: dict[str, str] = {
             'lat': str(lat),
             'lon': str(lon),
@@ -56,4 +64,8 @@ class OpenWeatherClient:
         response: dict[str, Any] = self._execute_get_request(
             url=self.CURRENT_WEATHER_URL, params=params
         )
-        return response
+        try:
+            weather = WeatherSchema.model_validate(response)
+        except ValidationError as e:
+            raise APIError(f'API request failed: {e}') from e
+        return weather
