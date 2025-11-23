@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, TypeAdapter, field_validator
 
 
 class LocationSearchSchema(BaseModel):
@@ -17,3 +17,6 @@ class LocationSearchSchema(BaseModel):
     @classmethod
     def normalize_name(cls, v: str) -> str:
         return v.strip()[:255]
+
+
+location_search_adapter = TypeAdapter(list[LocationSearchSchema])
