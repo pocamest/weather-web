@@ -6,7 +6,7 @@ from django.conf import settings
 from pydantic import ValidationError
 
 from .exceptions import APIError
-from .schemas import LocationSearchSchema, location_search_adapter
+from .schemas import LocationSearchSchema, WeatherSchema, location_search_adapter
 
 
 class OpenWeatherClient:
@@ -49,12 +49,12 @@ class OpenWeatherClient:
 
         return locations_search
 
-    def find_weather_by_coordinates(
+    def get_weather(
         self,
         lat: Decimal,
         lon: Decimal,
         units: str = settings.OPEN_WEATHER_DEFAULT_UNITS,
-    ) -> dict[str, Any]:
+    ) -> WeatherSchema:
         params: dict[str, str] = {
             'lat': str(lat),
             'lon': str(lon),
@@ -64,4 +64,8 @@ class OpenWeatherClient:
         response: dict[str, Any] = self._execute_get_request(
             url=self.CURRENT_WEATHER_URL, params=params
         )
-        return response
+        try:
+            weather = WeatherSchema.model_validate(response)
+        except ValidationError as e:
+            raise APIError(f'API request failed: {e}') from e
+        return weather

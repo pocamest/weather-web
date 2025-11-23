@@ -1,9 +1,18 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, TypeAdapter, field_validator
+from pydantic import (
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+    field_validator,
+)
 
 
 class LocationSearchSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str
     country_code: str = Field(max_length=2, validation_alias='country')
     latitude: Decimal = Field(
@@ -16,7 +25,23 @@ class LocationSearchSchema(BaseModel):
     @field_validator('name')
     @classmethod
     def normalize_name(cls, v: str) -> str:
-        return v.strip()[:255]
+        return v[:255]
 
 
 location_search_adapter = TypeAdapter(list[LocationSearchSchema])
+
+
+class WeatherSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    location_name: str = Field(validation_alias='name')
+    country_code: str = Field(
+        max_length=2, validation_alias=AliasPath('sys', 'country')
+    )
+    temperature: Decimal = Field(
+        max_digits=5,
+        decimal_places=2,
+        ge=-100,
+        le=100,
+        validation_alias=AliasPath('main', 'temp'),
+    )
