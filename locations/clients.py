@@ -16,10 +16,10 @@ class OpenWeatherClient:
 
     def __init__(
         self,
-        api_key: str = settings.OPEN_WEATHER_API_KEY,
+        api_key: str | None = None,
         timeout: tuple[int, int] = DEFAULT_TIMEOUT,
     ):
-        self.api_key = api_key
+        self.api_key = api_key or settings.OPEN_WEATHER_API_KEY
         self.timeout = timeout
 
     def _execute_get_request(self, url: str, params: dict[str, Any]) -> Any:
@@ -31,8 +31,10 @@ class OpenWeatherClient:
         return response.json()
 
     def search_locations(
-        self, name: str, limit: int = settings.OPEN_WEATHER_DEFAULT_SEARCH_LIMIT
+        self, name: str, limit: int | None = None
     ) -> list[LocationSearchSchema]:
+        limit = limit or settings.OPEN_WEATHER_DEFAULT_SEARCH_LIMIT
+
         params: dict[str, str | int] = {
             'q': name,
             'limit': limit,
@@ -53,8 +55,10 @@ class OpenWeatherClient:
         self,
         lat: Decimal,
         lon: Decimal,
-        units: str = settings.OPEN_WEATHER_DEFAULT_UNITS,
+        units: str | None = None,
     ) -> WeatherSchema:
+        units = units or settings.OPEN_WEATHER_DEFAULT_UNITS
+
         params: dict[str, str] = {
             'lat': str(lat),
             'lon': str(lon),
