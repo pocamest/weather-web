@@ -1,3 +1,6 @@
+from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
+
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -19,13 +22,19 @@ class Location(models.Model):
         decimal_places=7,
         validators=[MinValueValidator(-180), MaxValueValidator(180)],
     )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['latitude', 'longitude'], name='unique_latitude_longitude'
-            )
-        ]
+    geo_key = models.CharField('geo_key', max_length=64, db_index=True, unique=True)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.country_code})'
+
+    @staticmethod
+    def generate_geo_key(latitude: Decimal, longitude: Decimal) -> str:
+        r_latitude = latitude.quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
+        r_longitude = longitude.quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
+        return f'{r_latitude}:{r_longitude}'
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.geo_key = self.generate_geo_key(
+            latitude=self.latitude, longitude=self.longitude
+        )
+        super().save(*args, **kwargs)
