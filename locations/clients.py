@@ -31,12 +31,12 @@ class OpenWeatherClient:
         return response.json()
 
     def search_locations(
-        self, name: str, limit: int | None = None
+        self, query: str, limit: int | None = None
     ) -> list[LocationSearchSchema]:
         limit = limit or settings.OPEN_WEATHER_DEFAULT_SEARCH_LIMIT
 
         params: dict[str, str | int] = {
-            'q': name,
+            'q': query,
             'limit': limit,
             'appid': self.api_key,
         }

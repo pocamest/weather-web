@@ -8,4 +8,4 @@ class LocationDTO(BaseModel):
     country_code: str
     latitude: Decimal
     longitude: Decimal
-    is_adding: bool
+    is_added: bool
