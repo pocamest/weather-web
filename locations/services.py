@@ -5,6 +5,8 @@ from .dtos import LocationDTO
 from .models import Location
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AnonymousUser
+
     from users.models import User
 
 
@@ -12,17 +14,22 @@ class LocationService:
     def __init__(self, weather_client: OpenWeatherClient) -> None:
         self.weather_client = weather_client
 
-    def search_locations(self, query: str, user: 'User') -> list[LocationDTO]:
+    def search(
+        self, query: str, user: 'User | AnonymousUser'
+    ) -> list[LocationDTO]:
         search_results = self.weather_client.search_locations(query)
         search_geo_keys = [
             Location.generate_geo_key(latitude=item.latitude, longitude=item.longitude)
             for item in search_results
         ]
-        user_added_geo_keys = set(
-            user.locations.filter(geo_key__in=search_geo_keys).values_list(
-                'geo_key', flat=True
+
+        user_added_geo_keys = set()
+        if user.is_authenticated:
+            user_added_geo_keys = set(
+                user.locations.filter(geo_key__in=search_geo_keys).values_list(
+                    'geo_key', flat=True
+                )
             )
-        )
 
         results = []
         for geo_key, item in zip(search_geo_keys, search_results):
