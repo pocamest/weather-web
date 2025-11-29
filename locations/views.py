@@ -6,39 +6,39 @@ from django.views import View
 
 from .clients import OpenWeatherClient
 from .exceptions import APIError
+from .forms import LocationSearchForm
 from .services import LocationService
 
 logger = logging.getLogger(__name__)
 
 
 class LocationSearchView(View):
+    form_class = LocationSearchForm
     template_name = 'locations/search.html'
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        query = request.GET.get('query')
-        if not query:
-            return render(
-                request=request,
-                template_name=self.template_name,
-                context={'search_results': [], 'query': ''},
-            )
-
-        weather_client = OpenWeatherClient()
-        location_service = LocationService(weather_client=weather_client)
-
-        user = request.user
-
         search_results = []
-        message_error = None
-        try:
-            search_results = location_service.search(query=query, user=user)
-        except APIError:
-            logger.exception("API call failed")
-            message_error = 'Connection error, please try again later'
+
+        if request.GET:
+            form = self.form_class(request.GET)
+            if form.is_valid():
+                weather_client = OpenWeatherClient()
+                location_service = LocationService(weather_client=weather_client)
+
+                query = form.cleaned_data['query']
+                try:
+                    search_results = location_service.search(
+                        query=query, user=request.user
+                    )
+                except APIError:
+                    logger.exception('API call failed')
+                    form.add_error(None, 'Connection error, please try again later')
+        else:
+            form = self.form_class()
+
         context = {
             'search_results': search_results,
-            'query': query,
-            'message_error': message_error,
+            'form': form,
         }
 
         return render(
