@@ -37,7 +37,14 @@
                                             {% if item.is_added %}
                                                 <button class="btn btn-secondary btn-sm" disabled>Added</button>
                                             {% else %}
-                                                <button class="btn btn-outline-success btn-sm" type="submit">Add</button>
+                                                <form method="POST" action="{% url 'locations:add' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="name" value="{{ item.name }}">
+                                                    <input type="hidden" name="country_code" value="{{ item.country_code }}">
+                                                    <input type="hidden" name="latitude" value="{{ item.latitude }}">
+                                                    <input type="hidden" name="longitude" value="{{ item.longitude }}">
+                                                    <button class="btn btn-outline-success btn-sm" type="submit">Add</button>
+                                                </form>
                                             {% endif %}
                                         {% else %}
                                             <small class="text-muted">Log in to add</small>

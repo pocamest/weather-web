@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 
 import environ
-from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -135,23 +134,22 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-REGISTRATION_REDIRECT_URL = reverse_lazy('users:login')
-LOGIN_REDIRECT_URL = reverse_lazy('home')
-LOGOUT_REDIRECT_URL = reverse_lazy('home')
+REGISTRATION_REDIRECT_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+ADD_LOCATION_REDIRECT_URL = 'home'
 
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-
     'formatters': {
         'default': {
             'format': '{levelname} {asctime} {name} {module} {message}',
             'style': '{',
         },
     },
-
     'handlers': {
         'console': {
             'level': 'DEBUG',
@@ -159,7 +157,6 @@ LOGGING = {
             'formatter': 'default',
         },
     },
-
     'loggers': {
         'django': {
             'handlers': ['console'],

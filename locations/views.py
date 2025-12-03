@@ -1,12 +1,18 @@
 import logging
 
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.conf import settings
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+)
+from django.shortcuts import redirect, render
 from django.views import View
 
 from .clients import OpenWeatherClient
 from .exceptions import APIError
-from .forms import LocationSearchForm
+from .forms import LocationAddForm, LocationSearchForm
 from .services import LocationService
 
 logger = logging.getLogger(__name__)
@@ -44,3 +50,21 @@ class LocationSearchView(View):
         return render(
             request=request, template_name=self.template_name, context=context
         )
+
+
+class LocationAddView(View):
+    form_class = LocationAddForm
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        user = request.user
+        if not user.is_authenticated:
+            return HttpResponseForbidden('You must be logged in to add a location')
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            weather_client = OpenWeatherClient()
+            location_service = LocationService(weather_client=weather_client)
+            location_service.add(user, **form.cleaned_data)
+            return redirect(settings.ADD_LOCATION_REDIRECT_URL)
+
+        logger.error(f'Failed to add location: {form.errors}')
+        return HttpResponseBadRequest('Invalid request')
