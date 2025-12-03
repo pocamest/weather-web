@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from .clients import OpenWeatherClient
@@ -14,9 +15,7 @@ class LocationService:
     def __init__(self, weather_client: OpenWeatherClient) -> None:
         self.weather_client = weather_client
 
-    def search(
-        self, query: str, user: 'User | AnonymousUser'
-    ) -> list[LocationDTO]:
+    def search(self, query: str, user: 'User | AnonymousUser') -> list[LocationDTO]:
         search_results = self.weather_client.search_locations(query)
         search_geo_keys = [
             Location.generate_geo_key(latitude=item.latitude, longitude=item.longitude)
@@ -44,3 +43,25 @@ class LocationService:
                 )
             )
         return results
+
+    def add(
+        self,
+        user: 'User',
+        name: str,
+        country_code: str,
+        latitude: Decimal,
+        longitude: Decimal,
+    ) -> Location:
+        geo_key = Location.generate_geo_key(latitude=latitude, longitude=longitude)
+        location, _ = Location.objects.get_or_create(
+            geo_key=geo_key,
+            defaults={
+                'name': name,
+                'country_code': country_code,
+                'latitude': latitude,
+                'longitude': longitude,
+            },
+        )
+        user.locations.add(location)
+
+        return location
