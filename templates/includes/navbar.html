@@ -1,0 +1,18 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">Weather App</a>
+
+        <div class="d-flex align-items-center">
+            {% if user.is_authenticated %}
+                <span class="me-3 text-muted">{{ user.username }}</span>
+                <form action="{% url 'users:logout' %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'users:login' %}" class="btn btn-outline-primary btn-sm me-2">Login</a>
+                <a href="{% url 'users:register' %}" class="btn btn-primary btn-sm">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
