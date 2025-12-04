@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib import messages
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -38,7 +39,7 @@ class LocationSearchView(View):
                     )
                 except APIError:
                     logger.exception('API call failed')
-                    form.add_error(None, 'Connection error, please try again later')
+                    messages.error(request, 'Connection error, please try again later')
         else:
             form = self.form_class()
 
