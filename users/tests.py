@@ -63,7 +63,7 @@ def test_successful_registration_normalizes_case(
 ) -> None:
     response = register_user(username='TestUser', email='TestUser@example.com')
     assertRedirects(
-        response=response, expected_url=str(settings.REGISTRATION_REDIRECT_URL)
+        response=response, expected_url=reverse(settings.REGISTRATION_REDIRECT_URL)
     )
     assert UserModel.objects.count() == 1
     created_user = UserModel.objects.first()
@@ -172,7 +172,9 @@ def test_login_successful_with_username(
 ) -> None:
     response = login_user(login_identifier=test_user.username.upper())
 
-    assertRedirects(response=response, expected_url=str(settings.LOGIN_REDIRECT_URL))
+    assertRedirects(
+        response=response, expected_url=reverse(settings.LOGIN_REDIRECT_URL)
+    )
 
     assert '_auth_user_id' in response.client.session
 
@@ -183,7 +185,9 @@ def test_login_successful_with_email(
 ) -> None:
     response = login_user(login_identifier=test_user.email.upper())
 
-    assertRedirects(response=response, expected_url=str(settings.LOGIN_REDIRECT_URL))
+    assertRedirects(
+        response=response, expected_url=reverse(settings.LOGIN_REDIRECT_URL)
+    )
 
     assert '_auth_user_id' in response.client.session
 
@@ -218,5 +222,7 @@ def test_logout_successful(client: Client, login_user: LoginUserCallable) -> Non
     url_logout = reverse('users:logout')
     response = client.post(path=url_logout)
 
-    assertRedirects(response=response, expected_url=str(settings.LOGOUT_REDIRECT_URL))
+    assertRedirects(
+        response=response, expected_url=reverse(settings.LOGOUT_REDIRECT_URL)
+    )
     assert '_auth_user_id' not in response.client.session

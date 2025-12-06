@@ -28,8 +28,9 @@ class UserManager(DjangoUserManager['User']):
         user = self.model(
             username=normalize_username, email=normalize_email, **extra_fields
         )
-        user.full_clean()
+
         user.set_password(password)
+        user.full_clean()
         user.save(using=self._db)
 
         return user
