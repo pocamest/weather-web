@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, Unpack
+from typing import TYPE_CHECKING, NotRequired, TypedDict, Unpack
 
 import pytest
 from django.conf import settings
@@ -146,18 +146,13 @@ LoginUserCallable = Callable[[Unpack[LoginParams]], DjangoTestResponse]
 
 
 @pytest.fixture
-def test_user(db: Any) -> 'User':
-    return UserModel.objects.create_user(
-        username='testuser', email='testuser@example.com', password='testpassword'
-    )
-
-
-@pytest.fixture
-def login_user(client: Client, test_user: 'User') -> LoginUserCallable:
+def login_user(
+    client: Client, test_user: 'User', test_user_password: str
+) -> LoginUserCallable:
     def _login_user(**kwargs: Unpack[LoginParams]) -> DjangoTestResponse:
         base_data: LoginData = {
             'login_identifier': test_user.username,
-            'password': 'testpassword',
+            'password': test_user_password,
         }
         base_data.update(kwargs)
         url_login = reverse('users:login')
