@@ -13,9 +13,9 @@ UserModel: type['User'] = get_user_model()
 def test_user_password() -> str:
     return 'testpassword'
 
+
 @pytest.fixture
 def test_user(db: Any, test_user_password: str) -> 'User':
-
     return UserModel.objects.create_user(
         username='testuser', email='testuser@example.com', password=test_user_password
     )
