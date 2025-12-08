@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.django_db
-def test_search_correctly_flags_added_locations(
+def test_search_returns_locations_with_added_flags(
     test_user: 'User',
     moscow_ru_data: LocationData,
     moscow_us_data: LocationData,
@@ -41,7 +41,10 @@ def test_search_correctly_flags_added_locations(
     expected_moscow_ru = LocationDTO(**moscow_ru_data, is_added=True)
     expected_moscow_us = LocationDTO(**moscow_us_data, is_added=False)
 
-    assert search_results == [expected_moscow_ru, expected_moscow_us]
+    assert len(search_results) == 2
+
+    assert search_results[0] == expected_moscow_ru
+    assert search_results[1] == expected_moscow_us
 
 
 @pytest.mark.django_db
