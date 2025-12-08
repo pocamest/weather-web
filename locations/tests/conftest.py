@@ -1,8 +1,17 @@
+from collections.abc import Callable
+from decimal import Decimal
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import pytest
 
+from locations.models import Location
 from locations.services import LocationService
+
+from .test_types import LocationData
+
+if TYPE_CHECKING:
+    from users.models import User
 
 
 @pytest.fixture
@@ -13,3 +22,36 @@ def mock_weather_client() -> MagicMock:
 @pytest.fixture
 def location_service(mock_weather_client: MagicMock) -> LocationService:
     return LocationService(weather_client=mock_weather_client)
+
+
+@pytest.fixture
+def create_location(db: Any) -> Callable[..., Location]:
+    def _create_location(
+        location_data: LocationData, user: 'User | None' = None
+    ) -> Location:
+        location = Location.objects.create(**location_data)
+        if user:
+            user.locations.add(location)
+        return location
+
+    return _create_location
+
+
+@pytest.fixture
+def moscow_ru_data() -> LocationData:
+    return {
+        'name': 'Moscow',
+        'country_code': 'RU',
+        'latitude': Decimal('55.7504461'),
+        'longitude': Decimal('37.6174943'),
+    }
+
+
+@pytest.fixture
+def moscow_us_data() -> LocationData:
+    return {
+        'name': 'Moscow',
+        'country_code': 'US',
+        'latitude': Decimal('46.7323875'),
+        'longitude': Decimal('-117.0001651'),
+    }
