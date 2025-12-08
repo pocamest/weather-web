@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from django.contrib.auth.models import AnonymousUser
 
 from locations.dtos import LocationDTO
 from locations.models import Location
@@ -44,27 +45,22 @@ def test_search_correctly_flags_added_locations(
 
 
 @pytest.mark.django_db
-def test_search_correctly_flags_added_locations(
-    test_user: 'User',
-    added_location_data: LocationData,
-    new_location_data: LocationData,
-    create_location: Callable[..., Location],
+def test_search_location_for_anonymous_user(
+    moscow_ru_data: LocationData,
     mock_weather_client: MagicMock,
     location_service: LocationService,
 ) -> None:
-    query = added_location_data['name']
-    create_location(location_data=added_location_data, user=test_user)
-    create_location(location_data=new_location_data)
-
     mock_weather_client.search_locations.return_value = [
         LocationSearchSchema(**moscow_ru_data)
     ]
 
-    search_results = location_service.search(query=query, user=test_user)
+    query = moscow_ru_data['name']
+    anonymous_user = AnonymousUser()
+
+    search_results = location_service.search(query=query, user=anonymous_user)
 
     mock_weather_client.search_locations.assert_called_once_with(query)
 
-    expected_added_dto = LocationDTO(**added_location_data, is_added=True)
-    expected_new_dto = LocationDTO(**new_location_data, is_added=False)
+    expected_dto = LocationDTO(**moscow_ru_data, is_added=False)
 
-    assert search_results == [expected_added_dto, expected_new_dto]
+    assert search_results == [expected_dto]
