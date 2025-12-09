@@ -1,11 +1,14 @@
 from collections.abc import Callable
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.test import Client
+from django.urls import reverse
 
 from locations.dtos import LocationDTO
+from locations.exceptions import APIError
 from locations.models import Location
 from locations.schemas import LocationSearchSchema
 from locations.services import LocationService
@@ -67,3 +70,29 @@ def test_search_location_for_anonymous_user(
     expected_dto = LocationDTO(**moscow_ru_data, is_added=False)
 
     assert search_results == [expected_dto]
+
+
+@patch('locations.views.OpenWeatherClient')
+@pytest.mark.django_db
+def test_search_page_handles_api_error(
+    mock_client_class: MagicMock,
+    client: Client,
+    test_user: 'User',
+) -> None:
+    mock_instance = mock_client_class.return_value
+    mock_instance.search_locations.side_effect = APIError('API request failed')
+
+    path = reverse('locations:search')
+    query_params = {'query': 'Moscow'}
+
+    client.force_login(test_user)
+
+    response = client.get(path=path, query_params=query_params)
+
+    mock_instance.search_locations.assert_called_once_with('Moscow')
+
+    assert response.status_code == 200
+
+    messages = (str(m) for m in response.context['messages'])
+
+    assert 'Connection error, please try again later' in messages
