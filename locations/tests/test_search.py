@@ -82,14 +82,15 @@ def test_search_page_handles_api_error(
     mock_instance = mock_client_class.return_value
     mock_instance.search_locations.side_effect = APIError('API request failed')
 
-    path = reverse('locations:search')
-    query_params = {'query': 'Moscow'}
+    url_search = reverse('locations:search')
+    query = 'Moscow'
+    query_params = {'query': query}
 
     client.force_login(test_user)
 
-    response = client.get(path=path, query_params=query_params)
+    response = client.get(path=url_search, query_params=query_params)
 
-    mock_instance.search_locations.assert_called_once_with('Moscow')
+    mock_instance.search_locations.assert_called_once_with(query)
 
     assert response.status_code == 200
 
