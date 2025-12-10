@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
@@ -8,7 +7,7 @@ import pytest
 from locations.models import Location
 from locations.services import LocationService
 
-from .test_types import LocationData
+from .test_types import CreateLocationCallable, LocationData
 
 if TYPE_CHECKING:
     from users.models import User
@@ -25,7 +24,7 @@ def location_service(mock_weather_client: MagicMock) -> LocationService:
 
 
 @pytest.fixture
-def create_location(db: Any) -> Callable[..., Location]:
+def create_location(db: Any) -> CreateLocationCallable:
     def _create_location(
         location_data: LocationData, user: 'User | None' = None
     ) -> Location:
