@@ -11,7 +11,7 @@ from pydantic import (
 
 
 class LocationSearchSchema(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, populate_by_name=True)
 
     name: str
     country_code: str = Field(max_length=2, validation_alias='country')
