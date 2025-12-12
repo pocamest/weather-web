@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, Any
 
 import pytest
-from django.http import HttpResponse
 from django.test import Client
 from django.urls import reverse
 
 from locations.models import Location
+from test_utils.types import DjangoTestResponse
 
 from .test_types import (
     AddLocationCallable,
@@ -15,11 +15,7 @@ from .test_types import (
 )
 
 if TYPE_CHECKING:
-    from django.test.client import _MonkeyPatchedWSGIResponse as DjangoTestResponse
-
     from users.models import User
-else:
-    DjangoTestResponse = HttpResponse
 
 
 @pytest.fixture
@@ -116,7 +112,8 @@ def test_forbidden_handle_add_location_anonymous_user(
 
 @pytest.mark.django_db
 def test_bad_request_handle_invalide_post_data(
-    test_user: 'User', add_location: AddLocationCallable,
+    test_user: 'User',
+    add_location: AddLocationCallable,
 ) -> None:
     invalid_data: LocationInvalidData = {'invalid_data': 'Moscow'}
 

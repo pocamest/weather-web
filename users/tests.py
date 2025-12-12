@@ -5,19 +5,16 @@ import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.http import HttpResponse
 from django.test import Client
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
 
+from test_utils.types import DjangoTestResponse
+
 from .forms import LoginForm, RegistrationForm
 
 if TYPE_CHECKING:
-    from django.test.client import _MonkeyPatchedWSGIResponse as DjangoTestResponse
-
     from .models import User
-else:
-    DjangoTestResponse = HttpResponse
 
 UserModel: type['User'] = get_user_model()
 

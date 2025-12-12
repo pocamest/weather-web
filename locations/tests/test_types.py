@@ -1,16 +1,11 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING, Protocol, TypedDict
 
-from django.http import HttpResponse
-
 from locations.models import Location
+from test_utils.types import DjangoTestResponse
 
 if TYPE_CHECKING:
-    from django.test.client import _MonkeyPatchedWSGIResponse as DjangoTestResponse
-
     from users.models import User
-else:
-    DjangoTestResponse = HttpResponse
 
 
 class LocationData(TypedDict):
