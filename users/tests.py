@@ -11,6 +11,7 @@ from pytest_django.asserts import assertRedirects
 
 from test_utils.types import DjangoTestResponse
 
+from .constants import MSG_LOGIN_INVALID_CREDENTIALS
 from .forms import LoginForm, RegistrationForm
 
 if TYPE_CHECKING:
@@ -190,7 +191,7 @@ def test_login_with_incorrect_password(login_user: LoginUserCallable) -> None:
 
     assert response.status_code == 200
     form: LoginForm = response.context['form']
-    assert 'Invalid username/email or password.' in form.non_field_errors()
+    assert MSG_LOGIN_INVALID_CREDENTIALS in form.non_field_errors()
 
 
 @pytest.mark.django_db
@@ -205,7 +206,7 @@ def test_login_with_nonexistent_user(client: Client) -> None:
 
     assert response.status_code == 200
     form: LoginForm = response.context['form']
-    assert 'Invalid username/email or password.' in form.non_field_errors()
+    assert MSG_LOGIN_INVALID_CREDENTIALS in form.non_field_errors()
 
 
 @pytest.mark.django_db

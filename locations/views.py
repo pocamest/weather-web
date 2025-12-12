@@ -12,6 +12,11 @@ from django.shortcuts import redirect, render
 from django.views import View
 
 from .clients import OpenWeatherClient
+from .constants import (
+    MSG_ADD_LOCATION_BAD_REQUEST,
+    MSG_ADD_LOCATION_FORBIDDEN,
+    MSG_WEATHER_API_CONNECTION_ERROR,
+)
 from .exceptions import APIError
 from .forms import LocationAddForm, LocationSearchForm
 from .services import LocationService
@@ -39,7 +44,7 @@ class LocationSearchView(View):
                     )
                 except APIError:
                     logger.exception('API call failed')
-                    messages.error(request, 'Connection error, please try again later')
+                    messages.error(request, MSG_WEATHER_API_CONNECTION_ERROR)
         else:
             form = self.form_class()
 
@@ -59,7 +64,7 @@ class LocationAddView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         user = request.user
         if not user.is_authenticated:
-            return HttpResponseForbidden('You must be logged in to add a location')
+            return HttpResponseForbidden(MSG_ADD_LOCATION_FORBIDDEN)
         form = self.form_class(request.POST)
         if form.is_valid():
             weather_client = OpenWeatherClient()
@@ -68,4 +73,4 @@ class LocationAddView(View):
             return redirect(settings.ADD_LOCATION_REDIRECT_URL)
 
         logger.error(f'Failed to add location: {form.errors}')
-        return HttpResponseBadRequest('Invalid request')
+        return HttpResponseBadRequest(MSG_ADD_LOCATION_BAD_REQUEST)

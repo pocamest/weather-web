@@ -4,6 +4,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
 
+from .constants import MSG_LOGIN_INVALID_CREDENTIALS
 from .forms import LoginForm, RegistrationForm
 
 
@@ -49,7 +50,7 @@ class LoginView(View):
                 login(request=request, user=user)
                 return redirect(settings.LOGIN_REDIRECT_URL)
             else:
-                form.add_error(None, 'Invalid username/email or password.')
+                form.add_error(None, MSG_LOGIN_INVALID_CREDENTIALS)
         return render(
             request=request, template_name=self.template_name, context={'form': form}
         )
