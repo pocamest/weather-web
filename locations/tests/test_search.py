@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import Client
 from django.urls import reverse
 
+from locations.constants import MSG_WEATHER_API_CONNECTION_ERROR
 from locations.dtos import LocationDTO
 from locations.exceptions import APIError
 from locations.models import Location
@@ -96,4 +97,4 @@ def test_search_page_handles_api_error(
 
     messages = (str(m) for m in response.context['messages'])
 
-    assert 'Connection error, please try again later' in messages
+    assert MSG_WEATHER_API_CONNECTION_ERROR in messages

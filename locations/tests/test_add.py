@@ -4,6 +4,7 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
+from locations.constants import MSG_ADD_LOCATION_BAD_REQUEST, MSG_ADD_LOCATION_FORBIDDEN
 from locations.models import Location
 from test_utils.types import DjangoTestResponse
 
@@ -107,7 +108,7 @@ def test_forbidden_handle_add_location_anonymous_user(
 
     assert response.status_code == 403
 
-    assert 'You must be logged in to add a location' in response.content.decode('utf-8')
+    assert MSG_ADD_LOCATION_FORBIDDEN in response.content.decode('utf-8')
 
 
 @pytest.mark.django_db
@@ -123,4 +124,4 @@ def test_bad_request_handle_invalide_post_data(
 
     assert response.status_code == 400
 
-    assert 'Invalid request' in response.content.decode('utf-8')
+    assert MSG_ADD_LOCATION_BAD_REQUEST in response.content.decode('utf-8')
