@@ -1,14 +1,18 @@
+import logging
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from .clients import OpenWeatherClient
-from .dtos import LocationDTO
+from .dtos import LocationDTO, LocationWithWeatherDTO
+from .exceptions import APIError
 from .models import Location
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
 
     from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class LocationService:
@@ -65,3 +69,27 @@ class LocationService:
         user.locations.add(location)
 
         return location
+
+    def get_locations_with_weather(
+        self, user_locations: list[Location]
+    ) -> list[LocationWithWeatherDTO]:
+        results = []
+        for location_db in user_locations:
+            try:
+                location_schema = self.weather_client.get_weather(
+                    lat=location_db.latitude, lon=location_db.longitude
+                )
+                location_dto = LocationWithWeatherDTO(
+                    name=location_schema.location_name,
+                    country_code=location_schema.country_code,
+                    temperature=location_schema.temperature,
+                )
+            except APIError:
+                logger.exception('API call failed')
+                location_dto = LocationWithWeatherDTO(
+                    name=location_db.name,
+                    country_code=location_db.country_code,
+                    temperature=None,
+                )
+            results.append(location_dto)
+        return results
