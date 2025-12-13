@@ -18,7 +18,7 @@ from django.contrib import messages
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, False))
+env = environ.Env()
 
 env.read_env(BASE_DIR / '.env')
 
@@ -28,11 +28,13 @@ env.read_env(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 OPEN_WEATHER_API_KEY = env('OPEN_WEATHER_API_KEY')
-OPEN_WEATHER_DEFAULT_SEARCH_LIMIT = env('OPEN_WEATHER_DEFAULT_SEARCH_LIMIT', default=5)
+OPEN_WEATHER_DEFAULT_SEARCH_LIMIT = env.int(
+    'OPEN_WEATHER_DEFAULT_SEARCH_LIMIT', default=5
+)
 OPEN_WEATHER_DEFAULT_UNITS = env('OPEN_WEATHER_DEFAULT_UNITS', default='metric')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DJANGO_DEBUG')
+DEBUG = env.bool('DJANGO_DEBUG')
 
 ALLOWED_HOSTS: list[str] = env.list('ALLOWED_HOSTS', default=[])
 
