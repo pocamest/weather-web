@@ -9,3 +9,9 @@ class LocationDTO(BaseModel):
     latitude: Decimal
     longitude: Decimal
     is_added: bool
+
+
+class LocationWithWeatherDTO(BaseModel):
+    name: str
+    country_code: str
+    temperature: Decimal | None
