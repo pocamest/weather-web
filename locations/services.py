@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from .clients import OpenWeatherClient
+from .constants import LOG_MSG_API_ERROR
 from .dtos import LocationDTO, LocationWithWeatherDTO
 from .exceptions import APIError
 from .models import Location
@@ -86,7 +87,7 @@ class LocationService:
                     temperature=location_schema.temperature,
                 )
             except APIError:
-                logger.exception('API call failed')
+                logger.exception(LOG_MSG_API_ERROR)
                 location_dto = LocationWithWeatherDTO(
                     name=location_db.name,
                     country_code=location_db.country_code,

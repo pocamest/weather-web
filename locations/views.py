@@ -15,6 +15,7 @@ from django.views import View
 
 from .clients import OpenWeatherClient
 from .constants import (
+    LOG_MSG_API_ERROR,
     MSG_ADD_LOCATION_BAD_REQUEST,
     MSG_ADD_LOCATION_FORBIDDEN,
     MSG_WEATHER_API_CONNECTION_ERROR,
@@ -45,7 +46,7 @@ class LocationSearchView(View):
                         query=query, user=request.user
                     )
                 except APIError:
-                    logger.exception('API call failed')
+                    logger.exception(LOG_MSG_API_ERROR)
                     messages.error(request, MSG_WEATHER_API_CONNECTION_ERROR)
         else:
             form = self.form_class()
