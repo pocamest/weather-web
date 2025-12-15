@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterable
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -71,7 +72,7 @@ class LocationService:
         return location
 
     def get_locations_with_weather(
-        self, user_locations: list[Location]
+        self, user_locations: Iterable[Location]
     ) -> list[LocationWithWeatherDTO]:
         results = []
         for location_db in user_locations:

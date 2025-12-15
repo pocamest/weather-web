@@ -1,7 +1,9 @@
 import logging
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -74,3 +76,45 @@ class LocationAddView(View):
 
         logger.error(f'Failed to add location: {form.errors}')
         return HttpResponseBadRequest(MSG_ADD_LOCATION_BAD_REQUEST)
+
+
+class LocationListView(View):
+    template_name = 'locations/list.html'
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        user = request.user
+        context: dict[str, Any] = {'locations_with_weather': [], 'page_obj': None}
+        if not user.is_authenticated:
+            return render(
+                request=request, template_name=self.template_name, context=context
+            )
+
+        user_locations = user.locations.order_by('name')
+
+        if not user_locations.exists():
+            return render(
+                request=request, template_name=self.template_name, context=context
+            )
+
+        paginator = Paginator(
+            object_list=user_locations, per_page=settings.LOCATIONS_PER_PAGE
+        )
+
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        weather_client = OpenWeatherClient()
+        location_service = LocationService(weather_client=weather_client)
+
+        locations_with_weather = location_service.get_locations_with_weather(
+            page_obj.object_list
+        )
+
+        context = {
+            'locations_with_weather': locations_with_weather,
+            'page_obj': page_obj,
+        }
+
+        return render(
+            request=request, template_name=self.template_name, context=context
+        )
