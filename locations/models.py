@@ -22,7 +22,7 @@ class Location(models.Model):
         decimal_places=7,
         validators=[MinValueValidator(-180), MaxValueValidator(180)],
     )
-    geo_key = models.CharField('geo_key', max_length=64, db_index=True, unique=True)
+    geo_key = models.CharField('geo_key', max_length=64, unique=True)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.country_code})'
