@@ -18,12 +18,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from users.views import home_placeholder_view
+from locations.views import LocationListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('locations/', include('locations.urls')),
 
-    path('', home_placeholder_view, name='home'),
+    path('', LocationListView.as_view(), name='home'),
 ]

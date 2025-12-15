@@ -33,6 +33,8 @@ OPEN_WEATHER_DEFAULT_SEARCH_LIMIT = env.int(
 )
 OPEN_WEATHER_DEFAULT_UNITS = env('OPEN_WEATHER_DEFAULT_UNITS', default='metric')
 
+LOCATIONS_PER_PAGE = env.int('LOCATIONS_PER_PAGE', default=5)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG')
 
