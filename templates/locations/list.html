@@ -32,7 +32,10 @@
                                     </small>
                                 </div>
 
-                                <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                                <form method="POST" action="{% url 'locations:delete' pk=item.location_id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                                </form>
 
                             </li>
                         {% endfor %}

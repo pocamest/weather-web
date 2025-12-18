@@ -10,7 +10,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseForbidden,
 )
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
 from .clients import OpenWeatherClient
@@ -18,6 +18,7 @@ from .constants import (
     LOG_MSG_API_ERROR,
     MSG_ADD_LOCATION_BAD_REQUEST,
     MSG_ADD_LOCATION_FORBIDDEN,
+    MSG_DELETE_LOCATION_FORBIDDEN,
     MSG_WEATHER_API_CONNECTION_ERROR,
 )
 from .exceptions import APIError
@@ -119,3 +120,15 @@ class LocationListView(View):
         return render(
             request=request, template_name=self.template_name, context=context
         )
+
+
+class LocationDeleteView(View):
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        user = request.user
+        if not user.is_authenticated:
+            return HttpResponseForbidden(MSG_DELETE_LOCATION_FORBIDDEN)
+
+        location = get_object_or_404(user.locations, id=pk)
+        user.locations.remove(location)
+
+        return redirect(settings.DELETE_LOCATION_REDIRECT_URL)
