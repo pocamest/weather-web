@@ -85,6 +85,7 @@ class LocationService:
                     name=location_schema.location_name,
                     country_code=location_schema.country_code,
                     temperature=location_schema.temperature,
+                    location_id=location_db.id
                 )
             except APIError:
                 logger.exception(LOG_MSG_API_ERROR)
@@ -92,6 +93,7 @@ class LocationService:
                     name=location_db.name,
                     country_code=location_db.country_code,
                     temperature=None,
+                    location_id=location_db.id
                 )
             results.append(location_dto)
         return results
