@@ -15,3 +15,4 @@ class LocationWithWeatherDTO(BaseModel):
     name: str
     country_code: str
     temperature: Decimal | None
+    location_id: int
