@@ -166,7 +166,9 @@ def test_login_successful_with_username(
     response = login_user(login_identifier=test_user.username.upper())
 
     assertRedirects(
-        response=response, expected_url=reverse(settings.LOGIN_REDIRECT_URL)
+        response=response,
+        expected_url=reverse(settings.LOGIN_REDIRECT_URL),
+        target_status_code=302,
     )
 
     assert '_auth_user_id' in response.client.session
@@ -179,7 +181,9 @@ def test_login_successful_with_email(
     response = login_user(login_identifier=test_user.email.upper())
 
     assertRedirects(
-        response=response, expected_url=reverse(settings.LOGIN_REDIRECT_URL)
+        response=response,
+        expected_url=reverse(settings.LOGIN_REDIRECT_URL),
+        target_status_code=302,
     )
 
     assert '_auth_user_id' in response.client.session
@@ -216,6 +220,8 @@ def test_logout_successful(client: Client, login_user: LoginUserCallable) -> Non
     response = client.post(path=url_logout)
 
     assertRedirects(
-        response=response, expected_url=reverse(settings.LOGOUT_REDIRECT_URL)
+        response=response,
+        expected_url=reverse(settings.LOGOUT_REDIRECT_URL),
+        target_status_code=302,
     )
     assert '_auth_user_id' not in response.client.session
