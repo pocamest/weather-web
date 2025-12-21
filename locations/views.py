@@ -8,17 +8,16 @@ from django.http import (
     HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
+
+from users.mixins import LoginRequiredForbiddenMixin
 
 from .clients import OpenWeatherClient
 from .constants import (
     LOG_MSG_API_ERROR,
     MSG_ADD_LOCATION_BAD_REQUEST,
-    MSG_ADD_LOCATION_FORBIDDEN,
-    MSG_DELETE_LOCATION_FORBIDDEN,
     MSG_WEATHER_API_CONNECTION_ERROR,
 )
 from .exceptions import APIError
@@ -62,13 +61,13 @@ class LocationSearchView(View):
         )
 
 
-class LocationAddView(View):
+class LocationAddView(LoginRequiredForbiddenMixin, View):
     form_class = LocationAddForm
 
     def post(self, request: HttpRequest) -> HttpResponse:
         user = request.user
-        if not user.is_authenticated:
-            return HttpResponseForbidden(MSG_ADD_LOCATION_FORBIDDEN)
+        assert user.is_authenticated
+
         form = self.form_class(request.POST)
         if form.is_valid():
             weather_client = OpenWeatherClient()
@@ -122,11 +121,10 @@ class LocationListView(View):
         )
 
 
-class LocationDeleteView(View):
+class LocationDeleteView(LoginRequiredForbiddenMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         user = request.user
-        if not user.is_authenticated:
-            return HttpResponseForbidden(MSG_DELETE_LOCATION_FORBIDDEN)
+        assert user.is_authenticated
 
         location = get_object_or_404(user.locations, id=pk)
         user.locations.remove(location)
