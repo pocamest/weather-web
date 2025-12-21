@@ -12,7 +12,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
-from users.mixins import LoginRequired403Mixin
+from users.mixins import LoginRequiredForbiddenMixin
 
 from .clients import OpenWeatherClient
 from .constants import (
@@ -61,7 +61,7 @@ class LocationSearchView(View):
         )
 
 
-class LocationAddView(LoginRequired403Mixin, View):
+class LocationAddView(LoginRequiredForbiddenMixin, View):
     form_class = LocationAddForm
 
     def post(self, request: HttpRequest) -> HttpResponse:
@@ -121,7 +121,7 @@ class LocationListView(View):
         )
 
 
-class LocationDeleteView(LoginRequired403Mixin, View):
+class LocationDeleteView(LoginRequiredForbiddenMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         user = request.user
         assert user.is_authenticated

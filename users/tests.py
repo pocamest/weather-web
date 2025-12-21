@@ -11,7 +11,11 @@ from pytest_django.asserts import assertRedirects
 
 from test_utils.types import DjangoTestResponse
 
-from .constants import MSG_LOGIN_INVALID_CREDENTIALS
+from .constants import (
+    MSG_ANONYMOUS_REQUIRED_FORBIDDEN,
+    MSG_LOGIN_INVALID_CREDENTIALS,
+    MSG_LOGIN_REQUIRED_FORBIDDEN,
+)
 from .forms import LoginForm, RegistrationForm
 
 if TYPE_CHECKING:
@@ -225,3 +229,26 @@ def test_logout_successful(client: Client, login_user: LoginUserCallable) -> Non
         target_status_code=302,
     )
     assert '_auth_user_id' not in response.client.session
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('url_name', ['users:register', 'users:login'])
+def test_anonymous_only_pages_areq_forbidden_for_authenticated_user(
+    client: Client, test_user: 'User', url_name: str
+) -> None:
+    client.force_login(test_user)
+
+    url = reverse(url_name)
+    response = client.get(url)
+
+    assert response.status_code == 403
+    assert MSG_ANONYMOUS_REQUIRED_FORBIDDEN in response.content.decode('utf-8')
+
+
+@pytest.mark.django_db
+def test_logout_is_forbidden_for_anonymous_user(client: Client) -> None:
+    url_logout = reverse('users:logout')
+    response = client.post(url_logout)
+
+    assert response.status_code == 403
+    assert MSG_LOGIN_REQUIRED_FORBIDDEN in response.content.decode('utf-8')

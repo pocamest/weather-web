@@ -6,10 +6,10 @@ from django.views import View
 
 from .constants import MSG_LOGIN_INVALID_CREDENTIALS
 from .forms import LoginForm, RegistrationForm
-from .mixins import AnonymousRequired403Mixin, LoginRequired403Mixin
+from .mixins import AnonymousRequiredForbiddenMixin, LoginRequiredForbiddenMixin
 
 
-class RegistrationView(AnonymousRequired403Mixin, View):
+class RegistrationView(AnonymousRequiredForbiddenMixin, View):
     form_class = RegistrationForm
     template_name = 'users/registration.html'
 
@@ -29,7 +29,7 @@ class RegistrationView(AnonymousRequired403Mixin, View):
         )
 
 
-class LoginView(AnonymousRequired403Mixin, View):
+class LoginView(AnonymousRequiredForbiddenMixin, View):
     form_class = LoginForm
     template_name = 'users/login.html'
 
@@ -57,7 +57,7 @@ class LoginView(AnonymousRequired403Mixin, View):
         )
 
 
-class LogoutView(LoginRequired403Mixin, View):
+class LogoutView(LoginRequiredForbiddenMixin, View):
     def post(self, request: HttpRequest) -> HttpResponse:
         logout(request)
         return redirect(settings.LOGOUT_REDIRECT_URL)
