@@ -6,6 +6,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.test import Client
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertTemplateUsed
 
 from locations.constants import MSG_WEATHER_API_CONNECTION_ERROR
 from locations.dtos import LocationDTO
@@ -93,8 +94,6 @@ def test_search_page_handles_api_error(
 
     mock_instance.search_locations.assert_called_once_with(query)
 
-    assert response.status_code == 200
+    assertTemplateUsed(response=response, template_name='locations/search.html')
 
-    messages = (str(m) for m in response.context['messages'])
-
-    assert MSG_WEATHER_API_CONNECTION_ERROR in messages
+    assertContains(response=response, text=MSG_WEATHER_API_CONNECTION_ERROR)
