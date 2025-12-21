@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from django.conf import settings
 from django.test import Client
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertRedirects
 
 from locations.constants import MSG_ADD_LOCATION_BAD_REQUEST
 from locations.models import Location
@@ -41,7 +43,9 @@ def test_successful_add_new_location_in_db(
 ) -> None:
     response = add_location(location_data=moscow_ru_data, user=test_user)
 
-    assert response.status_code == 302
+    assertRedirects(
+        response=response, expected_url=reverse(settings.ADD_LOCATION_REDIRECT_URL)
+    )
 
     assert Location.objects.count() == 1
     created_location = Location.objects.first()
@@ -72,7 +76,9 @@ def test_successful_created_link_between_location_and_user(
 
     response = add_location(location_data=moscow_ru_data, user=test_user)
 
-    assert response.status_code == 302
+    assertRedirects(
+        response=response, expected_url=reverse(settings.ADD_LOCATION_REDIRECT_URL)
+    )
 
     assert Location.objects.count() == 1
 
@@ -94,7 +100,9 @@ def test_add_link_location_no_change_db(
 
     response = add_location(location_data=moscow_ru_data, user=test_user)
 
-    assert response.status_code == 302
+    assertRedirects(
+        response=response, expected_url=reverse(settings.ADD_LOCATION_REDIRECT_URL)
+    )
 
     assert Location.objects.count() == 1
 
@@ -107,9 +115,9 @@ def test_forbidden_handle_add_location_anonymous_user(
 
     assert Location.objects.count() == 0
 
-    assert response.status_code == 403
-
-    assert MSG_LOGIN_REQUIRED_FORBIDDEN in response.content.decode('utf-8')
+    assertContains(
+        response=response, text=MSG_LOGIN_REQUIRED_FORBIDDEN, status_code=403
+    )
 
 
 @pytest.mark.django_db
@@ -123,6 +131,6 @@ def test_bad_request_handle_invalide_post_data(
 
     assert Location.objects.count() == 0
 
-    assert response.status_code == 400
-
-    assert MSG_ADD_LOCATION_BAD_REQUEST in response.content.decode('utf-8')
+    assertContains(
+        response=response, text=MSG_ADD_LOCATION_BAD_REQUEST, status_code=400
+    )

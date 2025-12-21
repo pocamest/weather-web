@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import Client
 from django.urls import reverse
-from pytest_django.asserts import assertRedirects
+from pytest_django.asserts import assertContains, assertRedirects
 
 from test_utils.types import DjangoTestResponse
 
@@ -241,8 +241,9 @@ def test_anonymous_only_pages_areq_forbidden_for_authenticated_user(
     url = reverse(url_name)
     response = client.get(url)
 
-    assert response.status_code == 403
-    assert MSG_ANONYMOUS_REQUIRED_FORBIDDEN in response.content.decode('utf-8')
+    assertContains(
+        response=response, text=MSG_ANONYMOUS_REQUIRED_FORBIDDEN, status_code=403
+    )
 
 
 @pytest.mark.django_db
@@ -250,5 +251,6 @@ def test_logout_is_forbidden_for_anonymous_user(client: Client) -> None:
     url_logout = reverse('users:logout')
     response = client.post(url_logout)
 
-    assert response.status_code == 403
-    assert MSG_LOGIN_REQUIRED_FORBIDDEN in response.content.decode('utf-8')
+    assertContains(
+        response=response, text=MSG_LOGIN_REQUIRED_FORBIDDEN, status_code=403
+    )
