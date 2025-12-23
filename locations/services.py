@@ -82,8 +82,8 @@ class LocationService:
                     lat=location_db.latitude, lon=location_db.longitude
                 )
                 location_dto = LocationWithWeatherDTO(
-                    name=location_schema.location_name,
-                    country_code=location_schema.country_code,
+                    name=location_db.name,
+                    country_code=location_db.country_code,
                     temperature=location_schema.temperature,
                     location_id=location_db.id
                 )

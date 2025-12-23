@@ -32,12 +32,6 @@ location_search_adapter = TypeAdapter(list[LocationSearchSchema])
 
 
 class WeatherSchema(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
-
-    location_name: str = Field(validation_alias='name')
-    country_code: str = Field(
-        max_length=2, validation_alias=AliasPath('sys', 'country')
-    )
     temperature: Decimal = Field(
         max_digits=5,
         decimal_places=2,
