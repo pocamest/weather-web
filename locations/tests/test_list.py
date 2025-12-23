@@ -1,7 +1,11 @@
 from decimal import Decimal
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING
+from unittest.mock import MagicMock, patch
 
 import pytest
+from django.test import Client
+from django.urls import reverse
+from pytest_django.asserts import assertTemplateUsed
 
 from locations.dtos import LocationWithWeatherDTO
 from locations.exceptions import APIError
@@ -9,6 +13,9 @@ from locations.schemas import WeatherSchema
 from locations.services import LocationService
 
 from .test_types import CreateLocationCallable, LocationData
+
+if TYPE_CHECKING:
+    from users.models import User
 
 
 @pytest.mark.django_db
@@ -23,7 +30,6 @@ def get_locations_with_weather_with_success_and_api_error(
     first_location = create_location(moscow_ru_data)
     fail_location = create_location(moscow_us_data)
     last_location = create_location(london_gb_data)
-
 
     first_location_temp = Decimal('1')
     last_location_temp = Decimal('2')
@@ -64,3 +70,29 @@ def get_locations_with_weather_with_success_and_api_error(
     assert locations_with_weather[0] == expected_first_dto
     assert locations_with_weather[1] == expected_fail_dto
     assert locations_with_weather[2] == expected_last_dto
+
+
+@patch('locations.views.OpenWeatherClient')
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'is_authenticated', [False, True], ids=['anonymous', 'authenticated']
+)
+def test_locations_list_displays_empty_state(
+    mock_client_class: MagicMock,
+    is_authenticated: bool,
+    test_user: 'User',
+    client: Client,
+) -> None:
+    mock_instance = mock_client_class.return_value
+
+    url_locations_list = reverse('locations:list')
+
+    if is_authenticated:
+        client.force_login(test_user)
+
+    response = client.get(url_locations_list)
+
+    mock_instance.get_weather.assert_not_called()
+
+    assertTemplateUsed(response=response, template_name='locations/list.html')
+    assert response.context['locations_with_weather'] == []
