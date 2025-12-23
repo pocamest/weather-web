@@ -54,3 +54,13 @@ def moscow_us_data() -> LocationData:
         'latitude': Decimal('46.7323875'),
         'longitude': Decimal('-117.0001651'),
     }
+
+
+@pytest.fixture
+def london_gb_data() -> LocationData:
+    return {
+        'name': 'London',
+        'country_code': 'GB',
+        'latitude': Decimal('51.5073219'),
+        'longitude': Decimal('-0.1276474')
+    }
