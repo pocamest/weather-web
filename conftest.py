@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -15,7 +15,7 @@ def test_user_password() -> str:
 
 
 @pytest.fixture
-def test_user(db: Any, test_user_password: str) -> 'User':
+def test_user(db: None, test_user_password: str) -> 'User':
     return UserModel.objects.create_user(
         username='testuser', email='testuser@example.com', password=test_user_password
     )
