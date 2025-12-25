@@ -233,7 +233,7 @@ def test_logout_successful(client: Client, login_user: LoginUserCallable) -> Non
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('url_name', ['users:register', 'users:login'])
-def test_anonymous_only_pages_areq_forbidden_for_authenticated_user(
+def test_anonymous_only_pages_are_forbidden_for_authenticated_user(
     client: Client, test_user: 'User', url_name: str
 ) -> None:
     client.force_login(test_user)

@@ -90,7 +90,7 @@ class LocationListView(View):
                 request=request, template_name=self.template_name, context=context
             )
 
-        user_locations = user.locations.order_by('name')
+        user_locations = user.locations.order_by('name', 'id')
 
         if not user_locations.exists():
             return render(

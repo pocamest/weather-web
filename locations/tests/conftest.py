@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
@@ -24,7 +24,7 @@ def location_service(mock_weather_client: MagicMock) -> LocationService:
 
 
 @pytest.fixture
-def create_location(db: Any) -> CreateLocationCallable:
+def create_location(db: None) -> CreateLocationCallable:
     def _create_location(
         location_data: LocationData, user: 'User | None' = None
     ) -> Location:
@@ -53,4 +53,14 @@ def moscow_us_data() -> LocationData:
         'country_code': 'US',
         'latitude': Decimal('46.7323875'),
         'longitude': Decimal('-117.0001651'),
+    }
+
+
+@pytest.fixture
+def london_gb_data() -> LocationData:
+    return {
+        'name': 'London',
+        'country_code': 'GB',
+        'latitude': Decimal('51.5073219'),
+        'longitude': Decimal('-0.1276474')
     }

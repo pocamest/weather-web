@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 from django.conf import settings
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def add_location(db: Any, client: Client) -> AddLocationCallable:
+def add_location(db: None, client: Client) -> AddLocationCallable:
     def _add_location(
         location_data: LocationData | LocationInvalidData, user: 'User | None' = None
     ) -> DjangoTestResponse:

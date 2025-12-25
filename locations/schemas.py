@@ -32,6 +32,8 @@ location_search_adapter = TypeAdapter(list[LocationSearchSchema])
 
 
 class WeatherSchema(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     temperature: Decimal = Field(
         max_digits=5,
         decimal_places=2,
