@@ -15,12 +15,8 @@ class LocationSearchSchema(BaseModel):
 
     name: str
     country_code: str = Field(max_length=2, validation_alias='country')
-    latitude: Decimal = Field(
-        max_digits=9, decimal_places=7, ge=-90, le=90, validation_alias='lat'
-    )
-    longitude: Decimal = Field(
-        max_digits=10, decimal_places=7, ge=-180, le=180, validation_alias='lon'
-    )
+    latitude: Decimal = Field(ge=-90, le=90, validation_alias='lat')
+    longitude: Decimal = Field(ge=-180, le=180, validation_alias='lon')
 
     @field_validator('name')
     @classmethod
